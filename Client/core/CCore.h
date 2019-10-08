@@ -176,6 +176,7 @@ public:
     void DestroyXML();
     void DeinitGUI();
     void DestroyGUI();
+    void ConnectToServer(char* filepath);
 
     // Web
     bool IsWebCoreLoaded() { return m_pWebCore != nullptr; }

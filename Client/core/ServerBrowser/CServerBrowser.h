@@ -14,13 +14,19 @@ class CServerBrowser;
 #pragma once
 
 // Amount of server lists/tabs (ServerBrowserType)
-#define SERVER_BROWSER_TYPE_COUNT           4
+/*
+    Количество вкладок на сновное
+*/
+#define SERVER_BROWSER_TYPE_COUNT 4
 
 // Amount of search types
-#define SERVER_BROWSER_SEARCH_TYPE_COUNT    2
+/*
+    Количество типов поиска
+*/
+#define SERVER_BROWSER_SEARCH_TYPE_COUNT 2
 
 // Server browser list update interval (in ms)
-#define SERVER_BROWSER_UPDATE_INTERVAL      1000
+#define SERVER_BROWSER_UPDATE_INTERVAL 1000
 
 #include "CMainMenu.h"
 #include "CServerList.h"
@@ -32,9 +38,9 @@ namespace ServerBrowserTypes
 {
     enum ServerBrowserType
     {
-        INTERNET = 0,
+        FAVOURITES = 0,
+        INTERNET,
         LAN,
-        FAVOURITES,
         RECENTLY_PLAYED
     };
 }

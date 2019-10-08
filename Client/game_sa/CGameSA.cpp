@@ -30,7 +30,10 @@ unsigned long* CGameSA::VAR_Framelimiter;
 
 /**
  * \todo allow the addon to change the size of the pools (see 0x4C0270 - CPools::Initialise) (in start game?)
- */
+ * \(Перевод) разрешить аддону изменять размер пулов (см. 0x4C0270 - CPools :: Initialise) (в начале игры?)
+ * \ Возможно это поможет!!
+ */ 
+
 CGameSA::CGameSA()
 {
     pGame = this;
@@ -60,6 +63,10 @@ CGameSA::CGameSA()
     }
 
     // Set the model ids for all the CModelInfoSA instances
+    // Устанавливают идентификаторы для всех экземляров CModelInfoSA 
+    // Класс CModelInfoSA - Объект gta(Информация о нем) Вопрос? (Абсолютно все объекты???)
+    // Скорее всего надо будет увеличить MODELINFO_MAX под мод.
+
     for (int i = 0; i < MODELINFO_MAX; i++)
     {
         ModelInfo[i].SetModelID(i);
@@ -71,7 +78,7 @@ CGameSA::CGameSA()
     this->m_pAESoundManager = new CAESoundManagerSA((CAESoundManagerSAInterface*)CLASS_CAESoundManager);
     this->m_pAudioContainer = new CAudioContainerSA();
     this->m_pWorld = new CWorldSA();
-    this->m_pPools = new CPoolsSA();
+    this->m_pPools = new CPoolsSA(); // объявление пулов
     this->m_pClock = new CClockSA();
     this->m_pRadar = new CRadarSA();
     this->m_pCamera = new CCameraSA((CCameraSAInterface*)CLASS_CCamera);
@@ -174,6 +181,7 @@ CGameSA::CGameSA()
     m_Cheats[CHEAT_HEALTARMORMONEY] = new SCheatSA((BYTE*)VAR_HealthArmorMoney, false);
 
     // Change pool sizes here
+    // Изменять размер пула здесь.
     m_pPools->SetPoolCapacity(TASK_POOL, 5000);                                               // Default is 500
     m_pPools->SetPoolCapacity(OBJECT_POOL, MAX_OBJECTS);                                      // Default is 350
     m_pPools->SetPoolCapacity(EVENT_POOL, 5000);                                              // Default is 200
@@ -186,15 +194,17 @@ CGameSA::CGameSA()
     dassert(m_pPools->GetPoolCapacity(POINTER_SINGLE_LINK_POOL) == MAX_POINTER_SINGLE_LINKS);
 
     // Increase streaming object instances list size
-    MemPut<WORD>(0x05B8E55, MAX_RWOBJECT_INSTANCES * 12);            // Default is 1000 * 12
+    // 0x05B8E55 - Узнать что за адрес
+    MemPut<WORD>(0x05B8E55, MAX_RWOBJECT_INSTANCES * 12);            // Default is 1000 * 12 
     MemPut<WORD>(0x05B8EB0, MAX_RWOBJECT_INSTANCES * 12);            // Default is 1000 * 12
 
     // Increase matrix array size
     MemPut<int>(0x054F3A1, MAX_OBJECTS * 3);            // Default is 900
 
+    // Здесь оно кудато хукается не понятно куда и что вобще происходит
     CModelInfoSA::StaticSetHooks();
     CPlayerPedSA::StaticSetHooks();
-    CRenderWareSA::StaticSetHooks();
+    CRenderWareSA::StaticSetHooks(); //Я думаю что сюда вставлять модели и IMG файлы
     CRenderWareSA::StaticSetClothesReplacingHooks();
     CTasksSA::StaticSetHooks();
     CPedSA::StaticSetHooks();
@@ -324,8 +334,8 @@ VOID CGameSA::StartGame()
     //  InitScriptInterface();
     //*(BYTE *)VAR_StartGame = 1;
     this->SetSystemState(GS_INIT_PLAYING_GAME);
-    MemPutFast<BYTE>(0xB7CB49, 0);
-    MemPutFast<BYTE>(0xBA67A4, 0);
+    MemPutFast<BYTE>(0xB7CB49, 0); // game not pause
+    MemPutFast<BYTE>(0xBA67A4, 0); // game not paused *(BYTE *)0xBA67A4 = 0; // menu not visible (https://gtaforums.com/topic/714055-loading-world/)
 }
 
 /**

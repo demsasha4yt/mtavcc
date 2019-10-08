@@ -233,6 +233,7 @@ void CCommandFuncs::Unload(const char* szParameters)
 
 void CCommandFuncs::Connect(const char* szParameters)
 {
+    //return; // Exit from function 
     // Parse the arguments (host port nick pass)
     char szBuffer[256] = "";
     if (szParameters)
@@ -320,6 +321,7 @@ void CCommandFuncs::ReloadNews(const char* szParameters)
 
 void CCommandFuncs::Reconnect(const char* szParameters)
 {
+    return; // Exit from function
     CModManager::GetSingleton().Unload();
 
     std::string  strHost, strNick, strPassword;

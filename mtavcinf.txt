@@ -1,0 +1,4 @@
+{
+	"version_client": "0.1",
+	"version_launcher": "0.1"
+}

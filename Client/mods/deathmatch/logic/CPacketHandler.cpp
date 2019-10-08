@@ -266,11 +266,11 @@ void CPacketHandler::Packet_ServerConnected(NetBitStreamInterface& bitStream)
     // Echo Connected to the chatbox
     if (szVersionString[0] != '\0')
     {
-        g_pCore->ChatPrintfColor("* Connected! [%s]", false, CHATCOLOR_INFO, szVersionString);
+        // g_pCore->ChatPrintfColor("* Connected! [%s]", false, CHATCOLOR_INFO, szVersionString);
     }
     else
     {
-        g_pCore->ChatEchoColor("* Connected!", CHATCOLOR_INFO);
+        // g_pCore->ChatEchoColor("* Connected!", CHATCOLOR_INFO);
     }
 
     // Get the long server version
@@ -468,7 +468,6 @@ void CPacketHandler::Packet_ServerDisconnected(NetBitStreamInterface& bitStream)
     bool    bExpectExtraString = false;
 
     bitStream.ReadBits(&ucType, 5);
-
     switch (ucType)
     {
         case ePlayerDisconnectType::INVALID_NICKNAME:
@@ -564,6 +563,7 @@ void CPacketHandler::Packet_ServerDisconnected(NetBitStreamInterface& bitStream)
         case ePlayerDisconnectType::CUSTOM:
             strReason = "%s";
             strErrorCode = _E("CD48");            // Custom disconnect reason
+            // WriteDebugEvent(_("CUSTOM :: Disconnected: You were kicked by %s"));
             bExpectExtraString = true;
             break;
         case ePlayerDisconnectType::SHUTDOWN:
@@ -585,6 +585,12 @@ void CPacketHandler::Packet_ServerDisconnected(NetBitStreamInterface& bitStream)
         if (bExpectExtraString)
         {
             strReason = SString(strReason, strMessage.c_str());
+        }
+
+        if (ucType == ePlayerDisconnectType::KICK) // Change nickname after kick with reason Console (new name: Player_Name) 
+        {
+            WriteDebugEvent(SString("DISCONNECTED:: %s; strMessage: %s", strReason, strMessage));
+
         }
 
         if (!strDuration.empty() && strDuration != "0")
@@ -1135,9 +1141,9 @@ void CPacketHandler::Packet_PlayerWasted(NetBitStreamInterface& bitStream)
             // Kill our ped in the correct way
             pPed->Kill((eWeaponType)weapon.data.ucWeaponType, bodyPart.data.uiBodypart, bStealth, false, animGroup, animID);
 
-            // Local player triggers himself when sending the death packet to the server, this one will be delayed by network delay so disable it unless it's
-            // sent by the server. if we were not already dead on the network trigger it anyway because this is also called by KillPed server side and that will
-            // not trigger the event locally.
+            // Local player triggers himself when sending the death packet to the server, this one will be delayed by network delay so disable it unless
+            // it's sent by the server. if we were not already dead on the network trigger it anyway because this is also called by KillPed server side and
+            // that will not trigger the event locally.
             if (pPed->IsLocalPlayer() == false || bAlreadyDeadOnNetwork == false)
             {
                 // Call the onClientPlayerWasted event
@@ -2032,9 +2038,9 @@ void CPacketHandler::Packet_VehicleTrailer(NetBitStreamInterface& bitStream)
                 pTrailer->SetRotationDegrees(rotation.data.vecRotation);
                 pTrailer->SetTurnSpeed(turn.data.vecVelocity);
 
-                #ifdef MTA_DEBUG
+#ifdef MTA_DEBUG
                 g_pCore->GetConsole()->Printf("Packet_VehicleTrailer: attaching trailer %d to vehicle %d", TrailerID, ID);
-                #endif
+#endif
                 pVehicle->SetTowedVehicle(pTrailer);
 
                 // Call the onClientTrailerAttach
@@ -2044,9 +2050,9 @@ void CPacketHandler::Packet_VehicleTrailer(NetBitStreamInterface& bitStream)
             }
             else
             {
-                #ifdef MTA_DEBUG
+#ifdef MTA_DEBUG
                 g_pCore->GetConsole()->Printf("Packet_VehicleTrailer: detaching trailer %d from vehicle %d", TrailerID, ID);
-                #endif
+#endif
                 pVehicle->SetTowedVehicle(NULL);
 
                 // Call the onClientTrailerDetach
@@ -2057,12 +2063,12 @@ void CPacketHandler::Packet_VehicleTrailer(NetBitStreamInterface& bitStream)
         }
         else
         {
-            #ifdef MTA_DEBUG
+#ifdef MTA_DEBUG
             if (!pVehicle)
                 g_pCore->GetConsole()->Printf("Packet_VehicleTrailer: vehicle (id %d) not found", ID);
             if (!pTrailer)
                 g_pCore->GetConsole()->Printf("Packet_VehicleTrailer: trailer (id %d) not found", TrailerID);
-            #endif
+#endif
         }
     }
 }
@@ -2713,7 +2719,7 @@ retry:
                     }
                     else
                     {
-                        #ifdef MTA_DEBUG
+#ifdef MTA_DEBUG
                         char buf[256] = {0};
                         bitStream.Read(buf, ucNameLength);
                         // Raise a special assert, as we have to try and figure out this error.
@@ -2721,7 +2727,7 @@ retry:
                         // Replay the problem for debugging
                         bitStream.ResetReadPointer();
                         goto retry;
-                        #endif
+#endif
 
                         delete pCustomData;
                         pCustomData = NULL;
@@ -2732,11 +2738,11 @@ retry:
                 }
                 else
                 {
-                    #ifdef MTA_DEBUG
+#ifdef MTA_DEBUG
                     // Jax: had this with a colshape (ucNameLength=109,us=0,usNumData=4)
                     // Raise a special assert, as we have to try and figure out this error.
                     assert(0);
-                    #endif
+#endif
 
                     delete pCustomData;
                     pCustomData = NULL;
@@ -3930,7 +3936,8 @@ retry:
                     }
                     else
                     {
-                        pWater = new CClientWater(g_pClientGame->GetManager(), EntityID, vecVertices[0], vecVertices[1], vecVertices[2], vecVertices[3], bShallow);
+                        pWater =
+                            new CClientWater(g_pClientGame->GetManager(), EntityID, vecVertices[0], vecVertices[1], vecVertices[2], vecVertices[3], bShallow);
                     }
                     if (!pWater->Exists())
                     {

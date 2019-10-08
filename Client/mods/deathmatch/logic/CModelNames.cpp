@@ -15,6 +15,7 @@ struct
     ushort      usID;
     const char* szName;
 } static const bigFOTable[] = {
+    19131, "ArrowType2",
     9557,  "lake_sfw",
     8487,  "ballyswtr01_lvs",
     8324,  "vgsbboardsigns10",
@@ -1312,7 +1313,7 @@ struct
     9320,  "preshoosbig02_SFN01",
     9322,  "preshoos03_SFN05",
     9323,  "moresfnshit29",
-    9324,  "preshoosbig02_SFN02",
+  //   9324,  "preshoosbig02_SFN02",
     9325,  "preshoos03_SFN06",
     9326,  "preshoos03_SFN07",
     9327,  "moresfnshit30",

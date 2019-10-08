@@ -20,7 +20,7 @@
 #define     CLASS_CCamera                   0xB6F028    // ##SA##
 #define     CLASS_CPad                      0xB73458    // ##SA##
 #define     CLASS_CGarages                  0x96C048    // ##SA##
-#define     CLASS_CFx                       0xa9ae00    // ##SA##
+#define     CLASS_CFx                       0xa9ae00    // ##SA## // ЧТО ТАКОЕ КЛАСС CFx ???
 #define     CLASS_CFxManager                0xA9AE80    // ##SA##
 #define     CLASS_CMenuManager              0xBA6748    // ##SA##
 
@@ -32,7 +32,7 @@
 #define     NUM_WeaponInfosOtherSkill       11
 #define     NUM_WeaponInfosTotal            (NUM_WeaponInfosStdSkill + (3*NUM_WeaponInfosOtherSkill)) // std, (poor, pro, special)
 
-#define     MODELINFO_MAX                   26000       // Actual max is 25755
+#define     MODELINFO_MAX                   26000       // Actual max is 25755  Это надо будет увеличить
 
 #define     FUNC_GetLevelFromPosition       0x4DD300
 
@@ -110,7 +110,7 @@ public:
     CGameSA();            // constructor
     ~CGameSA();
 
-    CPools* GetPools()
+    CPools* GetPools() 
     {
         DEBUG_TRACE("CPools     * GetPools()");
         return m_pPools;

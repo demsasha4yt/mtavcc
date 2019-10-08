@@ -16,11 +16,12 @@
 
 class CChatLineSection;
 
-#define CHAT_WIDTH              320                             // Chatbox default width
-#define CHAT_TEXT_COLOR         CColor(235, 221, 178)           // Chatbox default text color
-#define CHAT_MAX_LINES          100                             // Chatbox maximum chat lines
-#define CHAT_MAX_CHAT_LENGTH    96                              // Chatbox maximum chat message length
-#define CHAT_BUFFER             1024                            // Chatbox buffer size
+#define CHAT_WIDTH 320                                   // Chatbox default width
+#define CHAT_TEXT_COLOR CColor(235, 221, 178)            // Chatbox default text color
+#define CHAT_MAX_LINES 100                               // Chatbox maximum chat lines
+#define CHAT_MAX_CHAT_LENGTH 96                          // Chatbox maximum chat message length
+#define CHAT_BUFFER 1024                                 // Chatbox buffer size
+#define CHAT_MAX_BUFFER 20                               // Chatbox max arrowUp buffer
 
 class CColor
 {
@@ -156,12 +157,21 @@ public:
     CChat(){};
     CChat(CGUI* pManager, const CVector2D& vecPosition);
     virtual ~CChat();
-
+    //-----------------------------------------
+    // Buffer functions
+    struct ArrowUpBuffer // By BHARROLD
+    {
+        short int len;
+        short int iter;
+        std::string bufferStrs[CHAT_MAX_BUFFER + 1];
+    };
+    //-----------------------------------------
     virtual void Draw(bool bUseCacheTexture, bool bAllowOutline);
     virtual void Output(const char* szText, bool bColorCoded = true);
     void         Clear();
     void         ClearInput();
     bool         CharacterKeyHandler(CGUIKeyEventArgs KeyboardArgs);
+    bool         KeyDownHandler(CGUIKeyEventArgs e);            // By BHARROLD
     void         SetDxFont(LPD3DXFONT pDXFont);
 
     bool IsVisible() { return m_bVisible; }
@@ -205,6 +215,8 @@ protected:
     void DrawDrawList(const SDrawList& drawList, const CVector2D& topLeftOffset = CVector2D(0, 0));
     void GetDrawList(SDrawList& outDrawList, bool bUsingOutline);
     void DrawInputLine(bool bUsingOutline);
+    void GetClipBoardToInput();
+    void PutInputToClipBoard();
 
     CChatLine      m_Lines[CHAT_MAX_LINES];            // Circular buffer
     int            m_iScrollState;                     // 1 up, 0 stop, -1 down
@@ -263,6 +275,10 @@ protected:
     CVector2D     m_vecScale;
     float         m_fNativeWidth;
     float         m_fRcpUsingDxFontScale;
+    ArrowUpBuffer m_arrowUpBuffer; // by BHARROLD
+    bool          m_keyCtrlPressed;
+    bool          m_keyVPressed;
+    bool          m_keyCPressed;
 
     bool m_bCanChangeWidth;
     int  m_iCVarsRevision;

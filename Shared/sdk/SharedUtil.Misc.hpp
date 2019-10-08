@@ -46,8 +46,8 @@ CDuplicateLineFilter<SReportLine> ms_ReportLineFilter;
 
 #ifdef MTA_CLIENT
 
-#define PRODUCT_REGISTRY_PATH       "Software\\Multi Theft Auto: San Andreas All"       // HKLM
-#define PRODUCT_COMMON_DATA_DIR     "MTA San Andreas All"                               // C:\ProgramData
+#define PRODUCT_REGISTRY_PATH       "Software\\Multi Theft Auto: Vice city All"       // HKLM
+#define PRODUCT_COMMON_DATA_DIR     "MTA Vice City All"                               // C:\ProgramData
 #define TROUBLE_URL1 "http://updatesa.multitheftauto.com/sa/trouble/?v=_VERSION_&id=_ID_&tr=_TROUBLE_"
 
 #ifndef MTA_DM_ASE_VERSION
@@ -1602,6 +1602,29 @@ namespace SharedUtil
     // Only a guide as it could change after the call has returned
     //
     ///////////////////////////////////////////////////////////////////////////
+
+    static int _GetCurrentProcessorNumberHelper()
+    {
+    #ifdef WIN32
+    #ifdef WIN_x64
+            return 0;
+    #else
+            // This should work on XP
+            _asm
+            {
+                            mov eax, 1
+                            cpuid
+                            shr ebx, 24
+                            mov eax, ebx
+            }
+
+    #endif
+    #else
+            // This should work on Linux
+            return sched_getcpu();
+    #endif
+    }
+
     DWORD _GetCurrentProcessorNumber()
     {
         DWORD dwProcessorNumber = -1;
@@ -1623,30 +1646,10 @@ namespace SharedUtil
 #endif
         if (dwProcessorNumber == (DWORD)-1)
         {
-            auto GetCurrentProcessorNumberXP = []() -> int {
-#ifdef WIN32
-    #ifdef WIN_x64
-                return 0;
-    #else
-                // This should work on XP
-                    _asm
-                    {
-                        mov eax, 1
-                        cpuid
-                        shr ebx, 24
-                        mov eax, ebx
-                    }
-    #endif
-#else
-                // This should work on Linux
-                return sched_getcpu();
-#endif
-            };
-
-            dwProcessorNumber = GetCurrentProcessorNumberXP();
+            dwProcessorNumber = _GetCurrentProcessorNumberHelper();
         }
         return dwProcessorNumber;
-    }
+    }   
 
     ///////////////////////////////////////////////////////////////////////////
     //

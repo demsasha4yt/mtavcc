@@ -13,7 +13,7 @@
 #include <game/CGame.h>
 #include <Accctrl.h>
 #include <Aclapi.h>
-#include "Userenv.h"        // This will enable SharedUtil::ExpandEnvString
+#include "Userenv.h"            // This will enable SharedUtil::ExpandEnvString
 #define ALLOC_STATS_MODULE_NAME "core"
 #include "SharedUtil.hpp"
 #include <clocale>
@@ -55,9 +55,9 @@ BOOL AC_RestrictAccess()
     // Create our Discretionary Access Control List.
     if (ERROR_SUCCESS != (dwErr = SetEntriesInAcl(1, &NewAccess, NULL, &pTempDacl)))
     {
-        #ifdef DEBUG
-//        pConsole->Con_Printf("Error at SetEntriesInAcl(): %i", dwErr);
-        #endif
+#ifdef DEBUG
+        //        pConsole->Con_Printf("Error at SetEntriesInAcl(): %i", dwErr);
+#endif
         return FALSE;
     }
 
@@ -65,9 +65,9 @@ BOOL AC_RestrictAccess()
     // Set the new DACL to our current process.
     if (ERROR_SUCCESS != (dwErr = SetSecurityInfo(hProcess, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, NULL, NULL, pTempDacl, NULL)))
     {
-        #ifdef DEBUG
-//        pConsole->Con_Printf("Error at SetSecurityInfo(): %i", dwErr);
-        #endif
+#ifdef DEBUG
+        //        pConsole->Con_Printf("Error at SetSecurityInfo(): %i", dwErr);
+#endif
         return FALSE;
     }
 
@@ -87,9 +87,9 @@ CCore::CCore()
     // Initialize the global pointer
     g_pCore = this;
 
-    #if !defined(MTA_DEBUG) && !defined(MTA_ALLOW_DEBUG)
+#if !defined(MTA_DEBUG) && !defined(MTA_ALLOW_DEBUG)
     AC_RestrictAccess();
-    #endif
+#endif
 
     m_pConfigFile = NULL;
 
@@ -112,7 +112,7 @@ CCore::CCore()
 
     // Create interaction objects.
     m_pCommands = new CCommands;
-    m_pConnectManager = new CConnectManager;
+    m_pConnectManager = new CConnectManager;            // Connectmanager. I'll use it to connect to our server on start
 
     // Create the GUI manager and the graphics lib wrapper
     m_pLocalGUI = new CLocalGUI;
@@ -176,7 +176,8 @@ CCore::CCore()
 
     // Create tray icon
     m_pTrayIcon = new CTrayIcon();
-}
+
+  }
 
 CCore::~CCore()
 {
@@ -1367,7 +1368,7 @@ void CCore::RegisterCommands()
     m_pCommands->Add("showframegraph", _("shows the frame timing graph"), CCommandFuncs::ShowFrameGraph);
     m_pCommands->Add("jinglebells", "", CCommandFuncs::JingleBells);
     m_pCommands->Add("fakelag", "", CCommandFuncs::FakeLag);
-    
+
     m_pCommands->Add("reloadnews", "for developers: reload news", CCommandFuncs::ReloadNews);
 }
 
@@ -2295,4 +2296,14 @@ bool CCore::IsHostSmotraServer()
         }
     }
     return false;
+}
+
+void CCore::ConnectToServer(char* path)
+{
+    // Todo add parsing IP from text file
+    if (!CModManager::GetSingleton().GetCurrentMod())
+    {
+        CCore::GetSingleton().GetConnectManager()->Reconnect("176.119.156.105", 22003, "", false);
+       //CCore::GetSingleton().GetConnectManager()->Reconnect("176.119.156.105", 22003, "\0", true);
+    }
 }

@@ -64,7 +64,7 @@ bool CConnectManager::Connect(const char* szHost, unsigned short usPort, const c
     CServerInfo::GetSingletonPtr()->Hide();
 
     // Save the browser state
-    CServerBrowser::GetSingletonPtr()->SaveOptions();
+   CServerBrowser::GetSingletonPtr()->SaveOptions();
 
     // Are we already connecting?
     CNet* pNet = CCore::GetSingleton().GetNetwork();
@@ -98,11 +98,12 @@ bool CConnectManager::Connect(const char* szHost, unsigned short usPort, const c
     m_strPassword = szPassword;
     m_Address.s_addr = 0;
     m_usPort = usPort;
-    m_bSave = true;
+    m_bSave = false;
+    //m_bSave = true; // orig
 
-    m_strLastHost = m_strHost;
-    m_usLastPort = m_usPort;
-    m_strLastPassword = m_strPassword;
+    //m_strLastHost = m_strHost;
+    //m_usLastPort = m_usPort;
+    //m_strLastPassword = m_strPassword;
 
     // Parse host into a server item
     if (!CServerListItem::Parse(m_strHost.c_str(), m_Address))
@@ -123,7 +124,7 @@ bool CConnectManager::Connect(const char* szHost, unsigned short usPort, const c
     SString strAddress = inet_ntoa(m_Address);
     if (m_usPort && !pNet->StartNetwork(strAddress, m_usPort, CVARS_GET_VALUE<bool>("packet_tag")))
     {
-        SString strBuffer(_("Connecting to %s at port %u failed!"), m_strHost.c_str(), m_usPort);
+        SString strBuffer(_("Connecting to %s at port %u failed!"), "MTA Vice City", m_usPort);
         CCore::GetSingleton().ShowMessageBox(_("Error") + _E("CC22"), strBuffer, MB_BUTTON_OK | MB_ICON_ERROR);            // Failed to connect
         return false;
     }
@@ -144,9 +145,9 @@ bool CConnectManager::Connect(const char* szHost, unsigned short usPort, const c
     OpenServerFirewall(m_Address, CServerBrowser::GetSingletonPtr()->FindServerHttpPort(m_strHost, m_usPort), true);
 
     // Display the status box
-    SString strBuffer(_("Connecting to %s:%u ..."), m_strHost.c_str(), m_usPort);
+    SString strBuffer(_("Connecting to %s ..."), "MTA Vice City");
     CCore::GetSingleton().ShowMessageBox(_("CONNECTING"), strBuffer, MB_BUTTON_CANCEL | MB_ICON_INFO, m_pOnCancelClick);
-    WriteDebugEvent(SString("Connecting to %s:%u ...", m_strHost.c_str(), m_usPort));
+    //WriteDebugEvent(SString("Connecting to %s:%u ...", m_strHost.c_str(), m_usPort));
 
     return true;
 }

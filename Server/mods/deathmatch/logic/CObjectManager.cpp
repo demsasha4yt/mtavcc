@@ -141,7 +141,7 @@ bool CObjectManager::IsValidModel(unsigned long ulObjectModel)
         bIsValid = !!(g_uiValidObjectModels[uiChunk] & bit);
     }
 
-    return bIsValid;
+    return bIsValid;            // bIsValid
 }
 
 bool CObjectManager::IsBreakableModel(unsigned long ulObjectModel)

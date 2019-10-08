@@ -29,6 +29,7 @@ public:
     SString GetLauncherPathFilename();
     bool    UpdateOptimusSymbolExport();
     SString MaybeRenameExe(const SString& strGTAPath);
+    SString MaybeRenameExe2(const SString& strGTAPath);
 
 protected:
     SString _ShowCrashFailDialog();

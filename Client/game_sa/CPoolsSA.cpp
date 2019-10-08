@@ -16,15 +16,18 @@ extern bool g_bVehiclePointerInvalid;
 CPoolsSA::CPoolsSA()
 {
     DEBUG_TRACE("CPoolsSA::CPoolsSA()");
-    m_ppPedPoolInterface = (CPoolSAInterface<CPedSAInterface>**)0xB74490;
-    m_ppObjectPoolInterface = (CPoolSAInterface<CObjectSAInterface>**)0xB7449C;
-    m_ppVehiclePoolInterface = (CPoolSAInterface<CVehicleSAInterface>**)0xB74494;
+    //
+    m_ppPedPoolInterface = (CPoolSAInterface<CPedSAInterface>**)0xB74490;  // Вытаскивает первый элемент в пуле cPed в cPedInterface(Навереное?)
+    m_ppObjectPoolInterface = (CPoolSAInterface<CObjectSAInterface>**)0xB7449C; // Вытаскивает первый элемент в пуле cObject в CObjectInterface(Навереное?)
+    m_ppVehiclePoolInterface = (CPoolSAInterface<CVehicleSAInterface>**)0xB74494; // Аналогично для CVehicle 
+    // http://gtamodding.ru/wiki/%D0%90%D0%B4%D1%80%D0%B5%D1%81%D0%B0_%D0%9F%D0%B0%D0%BC%D1%8F%D1%82%D0%B8_%28SA%29 - Адреса найдены здесь.
 
     m_bGetVehicleEnabled = true;
     m_ulBuildingCount = 0;
 
-    MemSetFast(&Buildings, 0, sizeof(CBuilding*) * MAX_BUILDINGS);
+    MemSetFast(&Buildings, 0, sizeof(CBuilding*) * MAX_BUILDINGS); // Заполняет нулями Весь масив Buildings
 
+    // Не очень понятные классы - разобраться что это такое. Вероятно проверка потребляемой памяти
     EntryInfoNodePool = new CEntryInfoNodePoolSA();
     PointerNodeDoubleLinkPool = new CPointerNodeDoubleLinkPoolSA();
     PointerNodeSingleLinkPool = new CPointerNodeSingleLinkPoolSA();

@@ -274,7 +274,7 @@ void HandleDuplicateLaunching()
 //////////////////////////////////////////////////////////
 void HandleTrouble()
 {
-    if (CheckAndShowFileOpenFailureMessage())
+    /*if (CheckAndShowFileOpenFailureMessage())
         return;
 
     int iResponse = MessageBoxUTF8(NULL, _("Are you having problems running MTA:SA?.\n\nDo you want to revert to an earlier version?"),
@@ -282,7 +282,7 @@ void HandleTrouble()
     if (iResponse == IDYES)
     {
         BrowseToSolution("crashing-before-gtagame", TERMINATE_PROCESS);
-    }
+    }*/
 }
 
 //////////////////////////////////////////////////////////
@@ -655,7 +655,7 @@ void ValidateGTAPath()
 //////////////////////////////////////////////////////////
 void CheckAntiVirusStatus()
 {
-    // Get data from WMI
+   /*// Get data from WMI
     std::vector<SString> enabledList;
     std::vector<SString> disabledList;
     GetWMIAntiVirusStatus(enabledList, disabledList);
@@ -747,7 +747,7 @@ void CheckAntiVirusStatus()
 
         ShowNoAvDialog(g_hInstance, bEnableScaremongering);
         HideNoAvDialog();
-    }
+    }*/
 }
 
 //////////////////////////////////////////////////////////
@@ -822,12 +822,12 @@ void CheckDataFiles()
     }
 
     // Check for possible virus file changing activities
-    if (!VerifyEmbeddedSignature(PathJoin(strMTASAPath, MTA_EXE_NAME)))
+  /*  if (!VerifyEmbeddedSignature(PathJoin(strMTASAPath, MTA_EXE_NAME)))
     {
         SString strMessage(_("Main file is unsigned. Possible virus activity.\n\nSee online help if MTA does not work correctly."));
-        #if MTASA_VERSION_BUILD > 0 && defined(MTA_DM_CONNECT_TO_PUBLIC) && !defined(MTA_DEBUG)
+#if MTASA_VERSION_BUILD > 0 && defined(MTA_DM_CONNECT_TO_PUBLIC) && !defined(MTA_DEBUG)
         DisplayErrorMessageBox(strMessage, _E("CL29"), "maybe-virus1");
-        #endif
+#endif
     }
 
     struct
@@ -902,9 +902,9 @@ void CheckDataFiles()
             break;
         }
     }
-
+    */
     // Check for asi files
-    {
+   /* {
         bool bFoundInGTADir = !FindFiles(PathJoin(strGTAPath, "*.asi"), true, false).empty();
         bool bFoundInMTADir = !FindFiles(PathJoin(strMTASAPath, "mta", "*.asi"), true, false).empty();
         if (bFoundInGTADir || bFoundInMTADir)
@@ -914,14 +914,14 @@ void CheckDataFiles()
                                    _E("CL28"), "asi-files");
         }
     }
-
+    */
     // Warning if d3d9.dll exists in the GTA install directory
-    if (FileExists(PathJoin(strGTAPath, "d3d9.dll")))
+   /* if (FileExists(PathJoin(strGTAPath, "d3d9.dll")))
     {
         ShowD3dDllDialog(g_hInstance, PathJoin(strGTAPath, "d3d9.dll"));
         HideD3dDllDialog();
     }
-
+    */
     // Remove old log files saved in the wrong place
     SString strMtaDir = PathJoin(strMTASAPath, "mta");
     if (strGTAPath.CompareI(strMtaDir) == false)
@@ -1040,13 +1040,13 @@ BOOL CreateProcessWithMitigationPolicy(LPCWSTR lpApplicationName, LPWSTR lpComma
             MitigationPolicy |= PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_NO_REMOTE_ALWAYS_ON;
         }
 
-        #if 0   // TODO
+#if 0            // TODO
         if ( IsWindows10FoamybananaOrGreater () )
         {
             // Win 10 build something else
             MitigationPolicy |= PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_PREFER_SYSTEM32_ALWAYS_ON;
         }
-        #endif
+#endif
 
         // Create AttributeList for mitigation policy application system
         SIZE_T AttributeListSize;
@@ -1158,9 +1158,11 @@ int LaunchGame(SString strCmdLine)
     //
     // Launch GTA using CreateProcess
     //
+
     PROCESS_INFORMATION piLoadee = {0};
     DWORD               dwError;
     SString             strErrorContext;
+    strGTAEXEPath = GetInstallManager()->MaybeRenameExe2(strGTAPath);
     if (FALSE == CreateProcessWithMitigationPolicy(FromUTF8(strGTAEXEPath), (LPWSTR)*wstrCmdLine, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL,
                                                    FromUTF8(strMtaDir),            //    strMTASAPath\mta is used so pthreadVC2.dll can be found
                                                    &piLoadee, dwError, strErrorContext))
@@ -1202,7 +1204,7 @@ int LaunchGame(SString strCmdLine)
 
     // Resume execution for the game.
     ResumeThread(piLoadee.hThread);
-
+   
     if (piLoadee.hThread)
     {
         WriteDebugEvent("Loader - Waiting for L3 to close");
@@ -1265,11 +1267,11 @@ int LaunchGame(SString strCmdLine)
                 if (stuckProcessDetector.UpdateIsStuck())
                 {
                     WriteDebugEvent("Detected stuck process at quit");
-                #ifndef MTA_DEBUG
+#ifndef MTA_DEBUG
                     TerminateProcess(piLoadee.hProcess, 1);
                     status = WAIT_FAILED;
                     break;
-                #endif
+#endif
                 }
                 status = WaitForSingleObject(piLoadee.hProcess, 1000);
             }

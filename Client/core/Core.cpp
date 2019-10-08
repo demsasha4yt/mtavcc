@@ -48,9 +48,11 @@ int WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, PVOID pvNothing)
 
             g_hModule = hModule;
             g_pCore = new CCore;
+           
 
             FileTranslator.GetGTARootDirectory(WorkingDirectory);
             SetCurrentDirectory(WorkingDirectory.c_str());
+            
         }
     }
     else if (dwReason == DLL_PROCESS_DETACH)
@@ -69,7 +71,6 @@ int WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, PVOID pvNothing)
                 delete g_pCore;
                 g_pCore = NULL;
             }
-
             g_hModule = NULL;
         }
     }

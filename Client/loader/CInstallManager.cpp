@@ -541,9 +541,9 @@ SString CInstallManager::_ProcessLayoutChecks()
     //
 
     // Check data dirs exists and writable
-    for (uint i = 0; i < 2; i++)
+   /* for (uint i = 0; i < 2; i++)
     {
-        SString strMTADataPath = i ? GetMTADataPathCommon() : GetMTADataPath();
+        SString strMTADataPath = i ? GetMTADataPath() : GetMTADataPath();
 
         if (!DirectoryExists(strMTADataPath))
             ShowLayoutError("[Data directory not present]");            // Can't find directory
@@ -556,10 +556,10 @@ SString CInstallManager::_ProcessLayoutChecks()
         SString strContent = "test";
         if (!FileSave(strTestFilePath, strContent))
             ShowLayoutError("[Data directory not writable]");            // Can't save file
-
+    
         FileDelete(strTestFilePath);
         RemoveDirectory(ExtractPath(strTestFilePath));
-    }
+    }*/
 
 #if MTASA_VERSION_TYPE != VERSION_TYPE_CUSTOM
     // Check reg key exists
@@ -763,6 +763,7 @@ SString CInstallManager::MaybeRenameExe(const SString& strGTAPath)
     _ProcessExePatchChecks();
 
     SString strGTAEXEPath = PathJoin(strGTAPath, MTA_GTAEXE_NAME);
+    
     if (ShouldUseExeCopy())
     {
         // See if exe copy seems usable
@@ -771,7 +772,12 @@ SString CInstallManager::MaybeRenameExe(const SString& strGTAPath)
         if (uiStdFileSize && uiStdFileSize == FileSize(strHTAEXEPath))
             strGTAEXEPath = strHTAEXEPath;
     }
+    return strGTAEXEPath;
+}
 
+SString CInstallManager::MaybeRenameExe2(const SString& strGTAPath)
+{
+    SString strGTAEXEPath = PathJoin(strGTAPath, MTA_GTAEXE_NAME);
     return strGTAEXEPath;
 }
 

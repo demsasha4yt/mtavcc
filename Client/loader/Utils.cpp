@@ -775,6 +775,13 @@ SString DoUserAssistedSearch()
 ///////////////////////////////////////////////////////////////
 ePathResult GetGamePath(SString& strOutResult, bool bFindIfMissing)
 {
+    strOutResult = GetMTASAPath();
+    for (int i = 0; i < 4; i++)
+        strOutResult.pop_back();
+    strOutResult += "/";
+    // File found. Update registry.
+    SetCommonRegistryValue("", "GTA:SA Path", strOutResult);
+    return GAME_PATH_OK;
     // Registry places to look
     std::vector<SString> pathList;
 
@@ -828,51 +835,7 @@ ePathResult GetGamePath(SString& strOutResult, bool bFindIfMissing)
         return GAME_PATH_MISSING;
 
     // Ask user to browse for GTA
-    BROWSEINFOW bi = {0};
-    WString     strMessage = _("Select your Grand Theft Auto: San Andreas Installation Directory");
-    bi.lpszTitle = strMessage;
-    LPITEMIDLIST pidl = SHBrowseForFolderW(&bi);
-
-    if (pidl != 0)
-    {
-        wchar_t szBuffer[MAX_PATH];
-        // get the name of the  folder
-        if (SHGetPathFromIDListW(pidl, szBuffer))
-        {
-            strOutResult = ToUTF8(szBuffer);
-        }
-
-        // free memory used
-        IMalloc* imalloc = 0;
-        if (SUCCEEDED(SHGetMalloc(&imalloc)))
-        {
-            imalloc->Free(pidl);
-            imalloc->Release();
-        }
-    }
-
-    // Check browse result
-    if (!FileExists(PathJoin(strOutResult, MTA_GTAEXE_NAME)))
-    {
-        if (FileExists(PathJoin(strOutResult, MTA_GTASTEAMEXE_NAME)))
-            return GAME_PATH_STEAM;
-
-        // If browse didn't help, try another method
-        strOutResult = DoUserAssistedSearch();
-
-        if (!FileExists(PathJoin(strOutResult, MTA_GTAEXE_NAME)))
-        {
-            if (FileExists(PathJoin(strOutResult, MTA_GTASTEAMEXE_NAME)))
-                return GAME_PATH_STEAM;
-
-            // If still not found, give up
-            return GAME_PATH_MISSING;
-        }
-    }
-
-    // File found. Update registry.
-    SetCommonRegistryValue("", "GTA:SA Path", strOutResult);
-    return GAME_PATH_OK;
+    
 }
 
 ///////////////////////////////////////////////////////////////
@@ -897,7 +860,7 @@ ePathResult DiscoverGTAPath(bool bFindIfMissing)
 SString GetGTAPath()
 {
     if (g_strGTAPath == "")
-        DiscoverGTAPath(false);
+        DiscoverGTAPath(true);
     return g_strGTAPath;
 }
 
@@ -1863,13 +1826,14 @@ void CheckAndShowUpgradeProblems()
 //////////////////////////////////////////////////////////
 void CheckAndShowImgProblems()
 {
-    SString strFilename = GetApplicationSetting("diagnostics", "img-file-corrupt");
+    /* SString strFilename = GetApplicationSetting("diagnostics", "img-file-corrupt");
     SetApplicationSetting("diagnostics", "img-file-corrupt", "");
     if (!strFilename.empty())
     {
         SString strMsg(_("GTA:SA found errors in the file '%s'"), *strFilename);
         DisplayErrorMessageBox(strMsg, _E("CL44"), SString("img-file-corrupt&name=%s", *strFilename));
-    }
+    } */
+    return;
 }
 
 //////////////////////////////////////////////////////////

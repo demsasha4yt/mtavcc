@@ -85,6 +85,15 @@ CChat::CChat(CGUI* pManager, const CVector2D& vecPosition)
     // Load cvars and position the GUI
     LoadCVars();
     UpdateGUI();
+
+    // Load ArrowUp Buffer
+    m_arrowUpBuffer.len = 0;
+    m_arrowUpBuffer.iter = 0;
+
+    // Load Pressed Kyes
+    m_keyCtrlPressed = 0;
+    m_keyVPressed = 0;
+    m_keyCPressed = 0;
 }
 
 CChat::~CChat()
@@ -106,6 +115,7 @@ void CChat::OnModLoad()
 {
     // Set handlers
     m_pManager->SetCharacterKeyHandler(INPUT_MOD, GUI_CALLBACK_KEY(&CChat::CharacterKeyHandler, this));
+    g_pCore->GetGUI()->SetKeyDownHandler(INPUT_MOD, GUI_CALLBACK_KEY(&CChat::KeyDownHandler, this));
 }
 
 void CChat::LoadCVars()
@@ -548,6 +558,160 @@ void CChat::ScrollDown()
     }
 }
 
+// BY BHARROLD: Add ArrowUp Buffer function and Ctrl+A + Ctrl+V + Ctrl +C buffer funtions [BHARROLD]
+//---------------------------------------------------------------------------------------
+// Getting data from clipboard
+void CChat::GetClipBoardToInput()
+{
+    
+    if (OpenClipboard(NULL))
+    {
+        if (IsClipboardFormatAvailable(CF_OEMTEXT))
+        {
+            HANDLE clip = GetClipboardData(CF_OEMTEXT);
+            CloseClipboard();
+            unsigned char* ClipStr = static_cast <unsigned char*>(clip); // DOESN"T FULLY WORK!!
+
+            while (*ClipStr)
+            {
+                //WriteDebugEvent(SString("GetClipBoardToInput:: *ClipStr = %u", *ClipStr));
+                if (MbUTF8ToUTF16(m_strInputText).size() < CHAT_MAX_CHAT_LENGTH)
+                {
+                    if (*ClipStr < 127)            // we have any char from ASCII
+                    {
+                        // injecting as is 
+                        m_strInputText += static_cast<char>(*ClipStr);
+                    }
+                    else
+                    {
+                        // Generate a null-terminating string for our character
+                        wchar_t wUNICODE[2] = {*ClipStr, '\0'};
+
+                        // Convert our UTF character into an ANSI string
+                        std::string strANSI = UTF16ToMbUTF8(wUNICODE);
+                                
+                        // Append the ANSI string, and update
+                        m_strInputText.append(strANSI);
+                    }
+                }
+                else
+                    break;
+                ClipStr++;
+            }
+            SetInputText(m_strInputText.c_str());
+        }
+    }
+    return;
+}
+
+// Key Handles [BHARROLD]
+bool CChat::KeyDownHandler(CGUIKeyEventArgs e)
+{
+    // If we can take input
+    if (!CLocalGUI::GetSingleton().GetConsole()->IsVisible() && IsInputVisible())
+    {
+        // WriteDebugEvent(SString("KeyDownHandler::%x, %x, %x", e.scancode, e.codepoint, e.scancode));
+        // Check if it's a special key like enter and arrowAp, ctrl+c or ctrl+v
+        switch (e.scancode)
+        {
+            case 0xC8:
+            {
+                //WriteDebugEvent("KeyDownHandler::ArrowUp pressed in Chat");
+                if (m_arrowUpBuffer.len > 0)
+                {
+                    // WriteDebugEvent(SString("KeydownHandler:: Iter = %d", m_arrowUpBuffer.iter));
+                    if (m_arrowUpBuffer.iter < m_arrowUpBuffer.len - 1)
+                    {
+                        m_arrowUpBuffer.iter++;
+                        // WriteDebugEvent(SString("KeydownHandler:: BufferID = %d", m_arrowUpBuffer.len - m_arrowUpBuffer.iter));
+                        m_strInputText = m_arrowUpBuffer.bufferStrs[m_arrowUpBuffer.len - m_arrowUpBuffer.iter + 1];
+                        SetInputText(m_strInputText.c_str());
+                    }
+                    else if (m_arrowUpBuffer.iter == m_arrowUpBuffer.len - 1)
+                    {
+                        m_strInputText = m_arrowUpBuffer.bufferStrs[m_arrowUpBuffer.len - m_arrowUpBuffer.iter + 1];
+                        SetInputText(m_strInputText.c_str());
+                    }
+                }
+                break;
+            }
+            case 0xD0:            // ArrowDown
+            {
+                //WriteDebugEvent("KeyDownHandler::ArrowDown pressed in Chat");
+                if (m_arrowUpBuffer.iter == 0)
+                {
+                    m_arrowUpBuffer.bufferStrs[0] = "";
+                    m_strInputText = m_arrowUpBuffer.bufferStrs[0];
+                    SetInputText(m_strInputText.c_str());
+                }
+                else if (m_arrowUpBuffer.iter > 0)
+                {
+                    m_arrowUpBuffer.iter--;
+                    m_strInputText = m_arrowUpBuffer.bufferStrs[m_arrowUpBuffer.len - m_arrowUpBuffer.iter];
+                    SetInputText(m_strInputText.c_str());
+                }
+                break;
+            }
+            case 0x01:            // Esc
+            {
+                m_arrowUpBuffer.iter = 0;
+                break;
+            }
+            case 0x1D:            // Ctrl
+            {
+                m_keyCtrlPressed = true;
+                if (m_keyVPressed)
+                {
+                    //WriteDebugEvent("KeyDownHandler::Keys CTRL + V pressed");
+                    m_keyVPressed = false;
+                    m_keyCtrlPressed = false;
+                    GetClipBoardToInput();            // getting data from ClipBoard
+                }
+                else if (m_keyCPressed)
+                {
+                    //WriteDebugEvent("KeyDownHandler::Keys CTRL + C pressed");
+                    m_keyCPressed = false;
+                    m_keyCtrlPressed = false;
+                }
+                break;
+            }
+            case 0x2F:            // V
+            {
+                m_keyVPressed = true;
+                if (m_keyCtrlPressed)
+                {
+                    //WriteDebugEvent("KeyDownHandler::Keys CTRL + V pressed");
+                    m_keyVPressed = false;
+                    m_keyCtrlPressed = false;
+                    GetClipBoardToInput(); // getting data from ClipBoard
+                  
+                }
+                break;
+            }
+            case 0x2E:            // C
+            {
+                m_keyCPressed = true;
+                if (m_keyCtrlPressed)
+                {
+                    //WriteDebugEvent("KeyDownHandler::Keys CTRL + C pressed");
+                    m_keyCPressed = false;
+                    m_keyCtrlPressed = false;
+                }
+                break;
+            }
+            default:
+            {
+                //WriteDebugEvent(SString("KeyDownHandler::Key 0x%x pressed", e.scancode));
+                m_keyCtrlPressed = false;
+                m_keyVPressed = false;
+                m_keyCPressed = false;
+                break;
+            }
+        }
+    }
+    return true;
+}
+
 bool CChat::CharacterKeyHandler(CGUIKeyEventArgs KeyboardArgs)
 {
     // If we can take input
@@ -573,7 +737,30 @@ bool CChat::CharacterKeyHandler(CGUIKeyEventArgs KeyboardArgs)
                 // Empty the chat and hide the input stuff
                 // If theres a command to call, call it
                 if (!m_strCommand.empty() && !m_strInputText.empty())
+                {
                     CCommands::GetSingleton().Execute(m_strCommand.c_str(), m_strInputText.c_str());
+                }
+                // basic arrow up buffer handling [BHARROLD]
+                if (!m_strInputText.empty())
+                {
+                    if (m_arrowUpBuffer.len < CHAT_MAX_BUFFER)
+                    {
+                        m_arrowUpBuffer.len++;
+                        m_arrowUpBuffer.bufferStrs[m_arrowUpBuffer.len] = m_strInputText;
+                    }
+                    else
+                    {
+                        for (short i = 2; i <= CHAT_MAX_BUFFER; i++)
+                        {
+                            m_arrowUpBuffer.bufferStrs[i - 1] = m_arrowUpBuffer.bufferStrs[i];
+                        }
+                        m_arrowUpBuffer.bufferStrs[CHAT_MAX_BUFFER] = m_strInputText;
+                    }
+                    /* for (short i = 0; i <= m_arrowUpBuffer.len; i++)
+                         WriteDebugEvent(SString("Buffer %d = %s", i, m_arrowUpBuffer.bufferStrs[i].c_str()));
+                     WriteDebugEvent("-----------------");*/
+                    m_arrowUpBuffer.iter = 0;
+                }
 
                 SetInputVisible(false);
 
@@ -657,6 +844,7 @@ bool CChat::CharacterKeyHandler(CGUIKeyEventArgs KeyboardArgs)
 
             default:
             {
+                // WriteDebugEvent(SString("Chat - key %d pressed ",KeyboardArgs.codepoint));
                 // Clear last namepart when pressing letter
                 if (m_strLastPlayerNamePart.size() != 0)
                     m_strLastPlayerNamePart.clear();

@@ -355,7 +355,8 @@ void CServerListLAN::Discover()
 }
 
 std::string CServerListItem::Pulse(bool bCanSendQuery, bool bRemoveNonResponding)
-{            // Queries the server on it's query port (ASE protocol)
+{   
+    // Queries the server on it's query port (ASE protocol)
     // and returns whether it is done scanning
     if (bScanned || bSkipped)
         return "Done";

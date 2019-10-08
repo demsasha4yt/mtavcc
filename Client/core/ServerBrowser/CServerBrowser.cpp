@@ -53,14 +53,14 @@ CServerBrowser::CServerBrowser()
     m_ulLastUpdateTime = 0;
     m_bFirstTimeBrowseServer = true;
     m_bOptionsLoaded = false;
-    m_PrevServerBrowserType = ServerBrowserTypes::INTERNET;
+    m_PrevServerBrowserType = ServerBrowserTypes::FAVOURITES;
 
     m_bFocusTextEdit = false;
     m_uiShownQuickConnectHelpCount = 0;
     m_uiIsUsingTempTab = 0;
-    m_BeforeTempServerBrowserType = ServerBrowserTypes::INTERNET;
+    m_BeforeTempServerBrowserType = ServerBrowserTypes::FAVOURITES;
     m_llLastGeneralHelpTime = 0;
-
+     
     // Do some initial math
     CVector2D resolution = CCore::GetSingleton().GetGUI()->GetResolution();
     bool      bCreateFrame = true;
@@ -130,10 +130,16 @@ CServerBrowser::CServerBrowser()
     }
 
     // Create the tabs
-    CreateTab(ServerBrowserTypes::INTERNET, _("Internet"));
-    CreateTab(ServerBrowserTypes::LAN, _("Local"));
-    CreateTab(ServerBrowserTypes::FAVOURITES, _("Favourites"));
-    CreateTab(ServerBrowserTypes::RECENTLY_PLAYED, _("Recent"));
+    /*
+        ** Здесь создаются вкладки. 
+        ** Todo: Удалить создание вкладок INTERNET и LAN
+        ** При простом удалении крашит МТА core.dll
+    */
+
+    CreateTab(ServerBrowserTypes::FAVOURITES, _("MTA VICE CITY"));
+    CreateTab(ServerBrowserTypes::INTERNET, _("")); // Вкладка Интернет
+    CreateTab(ServerBrowserTypes::LAN, _("")); // Вкладка Local
+    CreateTab(ServerBrowserTypes::RECENTLY_PLAYED, _(""));
 
     // Load options
     LoadOptions(CCore::GetSingletonPtr()->GetConfig()->FindSubNode(CONFIG_NODE_SERVER_OPTIONS));
@@ -308,6 +314,7 @@ CServerBrowser::CServerBrowser()
             pLabel->AutoSize();
         }
     }
+
 }
 
 CServerBrowser::~CServerBrowser()
@@ -687,8 +694,13 @@ ServerBrowserType CServerBrowser::GetCurrentServerBrowserType()
     {
         currentServerBrowserType = ServerBrowserTypes::INTERNET;
     }
-
-    return currentServerBrowserType;
+    /*
+        Возвращаем вкладку FAVORITRES чтобы при нажатии на любую кнопку
+        обновлялась только она. Таким образом выпиливаем обновление вкладки интернет
+        Todo: Поискать еще варианты
+        дефолт:  return currentServerBrowserType;
+    */
+    return ServerBrowserTypes::FAVOURITES;
 }
 
 void CServerBrowser::Update()
@@ -715,7 +727,7 @@ void CServerBrowser::Update()
     if ((pList->IsUpdated() || m_PrevServerBrowserType != Type) && m_ulLastUpdateTime < CClientTime::GetTime() - SERVER_BROWSER_UPDATE_INTERVAL)
     {
         // Update the GUI
-        UpdateServerList(Type, Type == ServerBrowserTypes::RECENTLY_PLAYED);
+        UpdateServerList(Type, Type == ServerBrowserTypes::FAVOURITES);
 
         UpdateHistoryList();
 
@@ -763,7 +775,7 @@ void CServerBrowser::SetVisible(bool bVisible)
         CVARS_GET("auto_refresh_browser", bAutoRefresh);
 
         // Start loading all servers (if needed).
-        for (unsigned int i = 0; i < SERVER_BROWSER_TYPE_COUNT; i++)
+        /*for (unsigned int i = 0; i < SERVER_BROWSER_TYPE_COUNT; i++)
         {
             // Don't refresh Internet unless it's activated or needed.
             if (i != ServerBrowserTypes::INTERNET || m_bFirstTimeBrowseServer || bAutoRefresh)
@@ -772,19 +784,19 @@ void CServerBrowser::SetVisible(bool bVisible)
                 m_iSelectedServer[i] = -1;
                 GetServerList((ServerBrowserType)i)->Refresh();
             }
-        }
+        }*/
 
-        CreateHistoryList();
+        //CreateHistoryList();
 
         if (m_bFirstTimeBrowseServer)
             m_bFirstTimeBrowseServer = false;
 
         // Set the first item as our starting address
-        if (m_pComboAddressHistory[ServerBrowserTypes::INTERNET]->GetItemCount() > 0)
+        /*if (m_pComboAddressHistory[ServerBrowserTypes::INTERNET]->GetItemCount() > 0)
         {
             std::string strHistoryText = (const char*)m_pComboAddressHistory[ServerBrowserTypes::INTERNET]->GetItemByIndex(0)->GetData();
             SetAddressBarText("mtasa://" + strHistoryText);
-        }
+        }*/
 
         // Focus the address bar for power users
         ServerBrowserType Type = GetCurrentServerBrowserType();
@@ -880,7 +892,7 @@ void CServerBrowser::UpdateServerList(ServerBrowserType Type, bool bClearServerL
         CServerListItem* pServer = *it;
 
         // Find info from server cache for favourites and recent
-        if (Type == ServerBrowserType::FAVOURITES || Type == ServerBrowserType::RECENTLY_PLAYED)
+        if (Type == ServerBrowserType::FAVOURITES)
             GetServerCache()->GetServerCachedInfo(pServer);
 
         // Add/update/remove the item to the list
@@ -1269,13 +1281,12 @@ bool CServerBrowser::OnConnectClick(CGUIElement* pElement)
     }
 
     // If our password is empty, try and grab a saved password
-    if (strPassword.empty())
+        if (strPassword.empty())
     {
         strPassword = GetServerPassword(strHost + ":" + SString("%u", usPort));
     }
-
     // Start the connect
-    CCore::GetSingleton().GetConnectManager()->Connect(strHost.c_str(), usPort, strNick.c_str(), strPassword.c_str(), true);
+       CCore::GetSingleton().GetConnectManager()->Connect(strHost.c_str(), usPort, strNick.c_str(), strPassword.c_str(), true);
 
     return true;
 }
@@ -1781,7 +1792,7 @@ void CServerBrowser::LoadOptions(CXMLNode* pNode)
 
     // loop through all subnodes
     unsigned int uiCount = pNode->GetSubNodeCount();
-    for (unsigned int ui = 0; ui < uiCount; ui++)
+   for (unsigned int ui = 0; ui < uiCount; ui++)
     {
         CXMLNode* pSubNode = pNode->GetSubNode(ui);
         if (pSubNode && pSubNode->GetTagName().compare("list") == 0)
@@ -2228,7 +2239,7 @@ void CServerBrowser::SetNextHistoryText(bool bDown)
             return;
         }
     }
-
+        
     // Otherwise, let's start at the beginning if we're heading down
     if (bDown && pServerList->GetItemCount() > 0)
     {
@@ -2322,7 +2333,7 @@ void CServerBrowser::TabSkip(bool bBackwards)
         SetSelectedIndex(uiNewIndex);
     }
 }
-
+    
 bool CServerBrowser::IsActive()
 {
     return (m_pFrame && m_pFrame->IsActive()) || (m_pPanel && m_pPanel->IsActive());

@@ -166,8 +166,6 @@ void CRemoteMasterServer::DownloadFinished(const SHttpDownloadResult& result)
 //
 // CRemoteMasterServer::HasData
 //
-//
-//
 ///////////////////////////////////////////////////////////////
 bool CRemoteMasterServer::HasData()
 {

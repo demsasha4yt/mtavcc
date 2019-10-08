@@ -90,6 +90,7 @@ void CDirect3DEvents9::OnInvalidate(IDirect3DDevice9* pDevice)
 void CDirect3DEvents9::OnRestore(IDirect3DDevice9* pDevice)
 {
     WriteDebugEvent("CDirect3DEvents9::OnRestore");
+    
 
     // Restore the VMR9 manager
     // CVideoManager::GetSingleton ().OnResetDevice ( pDevice );
@@ -101,7 +102,7 @@ void CDirect3DEvents9::OnRestore(IDirect3DDevice9* pDevice)
     CGraphics::GetSingleton().OnDeviceRestore(pDevice);
 
     CCore::GetSingleton().OnDeviceRestore();
-}
+   }
 
 void CDirect3DEvents9::OnPresent(IDirect3DDevice9* pDevice)
 {

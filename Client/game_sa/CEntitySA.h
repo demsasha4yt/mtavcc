@@ -93,7 +93,7 @@ public:
     XYZ*                         pPrev;
     XYZ*                         pNext;
 };
-static_assert(sizeof(XYZ) == 0x54, "Invalid size for XYZ");
+ static_assert(sizeof(XYZ) == 0x54, "Invalid size for XYZ");
 
 class XYZStore
 {

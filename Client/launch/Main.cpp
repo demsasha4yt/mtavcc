@@ -29,6 +29,7 @@
 //
 //
 ///////////////////////////////////////////////////////////////
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     if (!IsWindowsXPSP3OrGreater())
@@ -73,7 +74,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         PFNDOWINMAIN pfnDoWinMain = static_cast<PFNDOWINMAIN>(static_cast<PVOID>(GetProcAddress(hModule, "DoWinMain")));
         if (pfnDoWinMain)
             iReturnCode = pfnDoWinMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-
         FreeLibrary(hModule);
     }
     else

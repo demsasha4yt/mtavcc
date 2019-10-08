@@ -48,7 +48,7 @@ union tPoolObjectFlags {
     };
 
 private:
-    unsigned char nValue;
+    unsigned char nValue; // Что за переменная?
 };
 
 template <class A, class B = A>
@@ -192,7 +192,8 @@ private:
     CPoolSAInterface<CObjectSAInterface>**                           m_ppObjectPoolInterface;
     CPoolSAInterface<CVehicleSAInterface>**                          m_ppVehiclePoolInterface;
 
-    CBuildingSA*  Buildings[MAX_BUILDINGS];
+    CBuildingSA*  Buildings[MAX_BUILDINGS]; // Объявление массива CBuildingsSA Скорее всего придется увеличить MAX_BUILDINGS. 
+                                            // Лимит находится в Common.h
     unsigned long m_ulBuildingCount;
 
     bool m_bGetVehicleEnabled;
@@ -211,6 +212,8 @@ private:
 #define FUNC_GetObject 0x550050
 #define FUNC_GetObjectRef 0x550020
 //#define FUNC_GetObjectCount                   0x4A74D0
+// вапрос какова хуя??? Оно закоменчено
+
 
 #define CLASS_CPool_Vehicle 0xB74494
 #define CLASS_CPool_Ped 0xB74490

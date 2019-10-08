@@ -595,13 +595,13 @@ EPatchResult UpdatePatchStatusAltModules(const SString& strGTAEXEPath, EPatchMod
 {
     // List of names to check/change
     SSearchInfo searchList[] = {
-        {
+        /*{
             0x4a0000,
             0x3000,
             "vorbisfile.dll",
             "vvof.dll",
             0,
-        },
+        },*/
         {
             0x4a0000,
             0x3000,
@@ -609,13 +609,13 @@ EPatchResult UpdatePatchStatusAltModules(const SString& strGTAEXEPath, EPatchMod
             "vea.dll",
             0,
         },
-        {
+        /*{
             0xD96000,
             0x7000,
             "vorbisfile.dll",
             "vvof.dll",
             0,
-        },
+        },*/
         {
             0xD96000,
             0x7000,
@@ -675,7 +675,7 @@ EPatchResult UpdatePatchStatusAltModules(const SString& strGTAEXEPath, EPatchMod
         return PATCH_CHECK_RESULT_OFF;
     }
 
-    if (uiNumOldNames + uiNumNewNames != 4)
+    if (uiNumOldNames + uiNumNewNames != 2)
     {
         WriteDebugEventAndReport(9804, SString("UpdatePatchStatusAltModules: Can't find module names (%d,%d)", uiNumOldNames, uiNumNewNames));
     }
@@ -687,7 +687,7 @@ EPatchResult UpdatePatchStatusAltModules(const SString& strGTAEXEPath, EPatchMod
         // Can't do this to gta_sa.exe 4 sure
         assert(!strGTAEXEPath.EndsWithI("gta_sa.exe"));
 
-        SetFileAttributes(strGTAEXEPath, FILE_ATTRIBUTE_NORMAL);
+        /*SetFileAttributes(strGTAEXEPath, FILE_ATTRIBUTE_NORMAL);
         FILE* fh = File::Fopen(strGTAEXEPath, "r+b");
         if (!fh)
         {
@@ -707,7 +707,7 @@ EPatchResult UpdatePatchStatusAltModules(const SString& strGTAEXEPath, EPatchMod
                 }
             }
         }
-        fclose(fh);
+        fclose(fh);*/
 
         if (mode == PATCH_SET_ON)
             WriteDebugEvent(SString("UpdatePatchStatusAltModules: Now using alt modules (%d,%d)", uiNumOldNames, uiNumNewNames));
@@ -723,6 +723,7 @@ EPatchResult UpdatePatchStatusAltModules(const SString& strGTAEXEPath, EPatchMod
 // Fix AddressOfEntryPoint incase of corruption
 //
 //////////////////////////////////////////////////////////
+
 EPatchResult UpdatePatchStatusEntryPoint(const SString& strGTAEXEPath, EPatchMode mode)
 {
     SPEFileOffsets fileOffsets;
@@ -771,8 +772,8 @@ EPatchResult UpdatePatchStatusEntryPoint(const SString& strGTAEXEPath, EPatchMod
 // GetPatchRequirementEntryPoint
 //
 // Return true if AddressOfEntryPoint in gta_sa.exe should be fixed (in proxy_sa.exe)
-//
-//////////////////////////////////////////////////////////
+////
+////////////////////////////////////////////////////////
 bool GetPatchRequirementEntryPoint()
 {
     // Only do file check once per launch
